@@ -137,18 +137,18 @@ void TeleopTwistStampedNode::convertJoyToTwist(
     );
     twist_msg.angular.x = convertJoyAxesToScalar(
       joy_msg,
-      m_params.axis_angular.x,
-      m_params.scale_angular_turbo.x
+      m_params.axis_angular.roll,
+      m_params.scale_angular_turbo.roll
     );
     twist_msg.angular.y = convertJoyAxesToScalar(
       joy_msg,
-      m_params.axis_angular.y,
-      m_params.scale_angular_turbo.y
+      m_params.axis_angular.pitch,
+      m_params.scale_angular_turbo.pitch
     );
     twist_msg.angular.z = convertJoyAxesToScalar(
       joy_msg,
-      m_params.axis_angular.z,
-      m_params.scale_angular_turbo.z
+      m_params.axis_angular.yaw,
+      m_params.scale_angular_turbo.yaw
     );
   }
   else
@@ -170,18 +170,18 @@ void TeleopTwistStampedNode::convertJoyToTwist(
     );
     twist_msg.angular.x = convertJoyAxesToScalar(
       joy_msg,
-      m_params.axis_angular.x,
-      m_params.scale_angular.x
+      m_params.axis_angular.roll,
+      m_params.scale_angular.roll
     );
     twist_msg.angular.y = convertJoyAxesToScalar(
       joy_msg,
-      m_params.axis_angular.y,
-      m_params.scale_angular.y
+      m_params.axis_angular.pitch,
+      m_params.scale_angular.pitch
     );
     twist_msg.angular.z = convertJoyAxesToScalar(
       joy_msg,
-      m_params.axis_angular.z,
-      m_params.scale_angular.z
+      m_params.axis_angular.yaw,
+      m_params.scale_angular.yaw
     );
   }
 }

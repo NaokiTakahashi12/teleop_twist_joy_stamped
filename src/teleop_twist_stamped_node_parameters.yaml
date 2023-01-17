@@ -18,7 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# TODO Support holonomic type command
 # TODO Organize axes index and scale, turbo
 
 teleop_twist_stamped_joy:
@@ -74,41 +73,41 @@ teleop_twist_stamped_joy:
       default_value: 1.0
       description: "Axis z linear turbo scaler"
   axis_angular:
-    x:
+    roll:
       type: int
       default_value: -1
       description: "Axis x angular button"
-    y:
+    pitch:
       type: int
       default_value: -1
       description: "Axis y angular button"
-    z:
+    yaw:
       type: int
       default_value: 2
       description: "Axis z angular button"
   scale_angular:
-    x:
+    roll:
       type: double
       default_value: 0.4
       description: "Axis x angular scaler"
-    y:
+    pitch:
       type: double
       default_value: 0.4
       description: "Axis y angular scaler"
-    z:
+    yaw:
       type: double
       default_value: 0.4
       description: "Axis z angular scaler"
   scale_angular_turbo:
-    x:
+    roll:
       type: double
       default_value: 0.8
       description: "Axis x angular turbo scaler"
-    y:
+    pitch:
       type: double
       default_value: 0.8
       description: "Axis y angular turbo scaler"
-    z:
+    yaw:
       type: double
       default_value: 0.8
       description: "Axis z angular turbo scaler"
