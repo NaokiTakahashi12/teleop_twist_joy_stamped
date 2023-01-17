@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# TODO Support holonomic type command
+# TODO Organize axes index and scale, turbo
 
 teleop_twist_stamped_joy:
   twist_frame_id:
@@ -37,29 +37,77 @@ teleop_twist_stamped_joy:
     x:
       type: int
       default_value: 1
-      description: "Axis linear button"
+      description: "Axis x linear button"
+    y:
+      type: int
+      default_value: 0
+      description: "Axis y linear button"
+    z:
+      type: int
+      default_value: -1
+      description: "Axis z linear button"
   scale_linear:
     x:
       type: double
       default_value: 0.7
-      description: "Axis linear scaler"
+      description: "Axis x linear scaler"
+    y:
+      type: double
+      default_value: 0.7
+      description: "Axis y linear scaler"
+    z:
+      type: double
+      default_value: 0.7
+      description: "Axis z linear scaler"
   scale_linear_turbo:
     x:
       type: double
       default_value: 1.0
-      description: "Axis linear turbo scaler"
+      description: "Axis x linear turbo scaler"
+    y:
+      type: double
+      default_value: 1.0
+      description: "Axis y linear turbo scaler"
+    z:
+      type: double
+      default_value: 1.0
+      description: "Axis z linear turbo scaler"
   axis_angular:
-    z:
+    roll:
       type: int
-      default_value: 0
-      description: "Axis angular button"
+      default_value: -1
+      description: "Axis x angular button"
+    pitch:
+      type: int
+      default_value: -1
+      description: "Axis y angular button"
+    yaw:
+      type: int
+      default_value: 2
+      description: "Axis z angular button"
   scale_angular:
-    z:
+    roll:
       type: double
       default_value: 0.4
-      description: "Axis angular scaler"
+      description: "Axis x angular scaler"
+    pitch:
+      type: double
+      default_value: 0.4
+      description: "Axis y angular scaler"
+    yaw:
+      type: double
+      default_value: 0.4
+      description: "Axis z angular scaler"
   scale_angular_turbo:
-    z:
+    roll:
       type: double
       default_value: 0.8
-      description: "Axis angular turbo scaler"
+      description: "Axis x angular turbo scaler"
+    pitch:
+      type: double
+      default_value: 0.8
+      description: "Axis y angular turbo scaler"
+    yaw:
+      type: double
+      default_value: 0.8
+      description: "Axis z angular turbo scaler"

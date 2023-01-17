@@ -23,6 +23,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <sensor_msgs/msg/joy.hpp>
+#include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 
 #include <teleop_twist_stamped_node_parameters.hpp>
@@ -44,6 +45,19 @@ private:
   Params m_params;
 
   void joyCallback(const sensor_msgs::msg::Joy &);
+
+  void convertJoyToTwist(
+    geometry_msgs::msg::Twist &,
+    const sensor_msgs::msg::Joy &
+  );
+
+  bool guardJoyToTwist(const sensor_msgs::msg::Joy &) const;
+
+  double convertJoyAxesToScalar(
+    const sensor_msgs::msg::Joy &,
+    const int axes_index,
+    const double axes_scaler
+  );
 };
 
 TeleopTwistStampedNode::TeleopTwistStampedNode(const rclcpp::NodeOptions &node_options)
@@ -78,23 +92,8 @@ TeleopTwistStampedNode::~TeleopTwistStampedNode()
 
 void TeleopTwistStampedNode::joyCallback(const sensor_msgs::msg::Joy &joy_msg)
 {
-  if(static_cast<unsigned int>(m_params.enable_button) > joy_msg.buttons.size())
+  if(guardJoyToTwist(joy_msg))
   {
-    RCLCPP_WARN(this->get_logger(), "Not found enable_button button index");
-    return;
-  }
-  if(m_twist_stamped_publisher)
-  {
-    if(static_cast<unsigned int>(m_params.axis_linear.x) > joy_msg.buttons.size())
-    {
-      RCLCPP_WARN(this->get_logger(), "Not found axis_linear.x button index");
-      return;
-    }
-    if(static_cast<unsigned int>(m_params.axis_angular.z) > joy_msg.buttons.size())
-    {
-      RCLCPP_WARN(this->get_logger(), "Not found axis_angular.z button index");
-      return;
-    }
     if(joy_msg.buttons[m_params.enable_button] == 0)
     {
       geometry_msgs::msg::TwistStamped pub_msg;
@@ -108,22 +107,119 @@ void TeleopTwistStampedNode::joyCallback(const sensor_msgs::msg::Joy &joy_msg)
     pub_msg.header.stamp = this->get_clock()->now();
     pub_msg.header.frame_id = m_params.twist_frame_id;
 
-    if(joy_msg.buttons[m_params.enable_turbo_button] == 1)
-    {
-      pub_msg.twist.linear.x =
-        m_params.scale_linear_turbo.x * joy_msg.axes[m_params.axis_linear.x];
-      pub_msg.twist.angular.z =
-        m_params.scale_angular_turbo.z * joy_msg.axes[m_params.axis_angular.z];
-    }
-    else
-    {
-      pub_msg.twist.linear.x =
-        m_params.scale_linear.x * joy_msg.axes[m_params.axis_linear.x];
-      pub_msg.twist.angular.z =
-        m_params.scale_angular.z * joy_msg.axes[m_params.axis_angular.z];
-    }
-
+    convertJoyToTwist(pub_msg.twist, joy_msg);
     m_twist_stamped_publisher->publish(pub_msg);
+  }
+}
+
+void TeleopTwistStampedNode::convertJoyToTwist(
+  geometry_msgs::msg::Twist &twist_msg,
+  const sensor_msgs::msg::Joy &joy_msg
+)
+{
+  const bool enable_turbo_mode = joy_msg.buttons[m_params.enable_turbo_button] == 1;
+  if(enable_turbo_mode)
+  {
+    twist_msg.linear.x = convertJoyAxesToScalar(
+      joy_msg,
+      m_params.axis_linear.x,
+      m_params.scale_linear_turbo.x
+    );
+    twist_msg.linear.y = convertJoyAxesToScalar(
+      joy_msg,
+      m_params.axis_linear.y,
+      m_params.scale_linear_turbo.y
+    );
+    twist_msg.linear.z = convertJoyAxesToScalar(
+      joy_msg,
+      m_params.axis_linear.z,
+      m_params.scale_linear_turbo.z
+    );
+    twist_msg.angular.x = convertJoyAxesToScalar(
+      joy_msg,
+      m_params.axis_angular.roll,
+      m_params.scale_angular_turbo.roll
+    );
+    twist_msg.angular.y = convertJoyAxesToScalar(
+      joy_msg,
+      m_params.axis_angular.pitch,
+      m_params.scale_angular_turbo.pitch
+    );
+    twist_msg.angular.z = convertJoyAxesToScalar(
+      joy_msg,
+      m_params.axis_angular.yaw,
+      m_params.scale_angular_turbo.yaw
+    );
+  }
+  else
+  {
+    twist_msg.linear.x = convertJoyAxesToScalar(
+      joy_msg,
+      m_params.axis_linear.x,
+      m_params.scale_linear.x
+    );
+    twist_msg.linear.y = convertJoyAxesToScalar(
+      joy_msg,
+      m_params.axis_linear.y,
+      m_params.scale_linear.y
+    );
+    twist_msg.linear.z = convertJoyAxesToScalar(
+      joy_msg,
+      m_params.axis_linear.z,
+      m_params.scale_linear.z
+    );
+    twist_msg.angular.x = convertJoyAxesToScalar(
+      joy_msg,
+      m_params.axis_angular.roll,
+      m_params.scale_angular.roll
+    );
+    twist_msg.angular.y = convertJoyAxesToScalar(
+      joy_msg,
+      m_params.axis_angular.pitch,
+      m_params.scale_angular.pitch
+    );
+    twist_msg.angular.z = convertJoyAxesToScalar(
+      joy_msg,
+      m_params.axis_angular.yaw,
+      m_params.scale_angular.yaw
+    );
+  }
+}
+
+bool TeleopTwistStampedNode::guardJoyToTwist(const sensor_msgs::msg::Joy &joy_msg) const
+{
+  if(static_cast<unsigned int>(m_params.enable_button) > joy_msg.buttons.size())
+  {
+    RCLCPP_WARN(this->get_logger(), "Not found enable_button button index");
+    return false;
+  }
+  if(not m_twist_stamped_publisher)
+  {
+    RCLCPP_INFO(this->get_logger(), "Disable enable_button");
+    return false;
+  }
+  return true;
+}
+
+double TeleopTwistStampedNode::convertJoyAxesToScalar(
+  const sensor_msgs::msg::Joy &joy_msg,
+  const int axes_index,
+  const double axes_scaler
+)
+{
+  constexpr double failed_return = 0;
+
+  if(static_cast<unsigned int>(axes_index) > joy_msg.axes.size())
+  {
+    return failed_return;
+  }
+  if(axes_index < 0)
+  {
+    return failed_return;
+  }
+  else
+  {
+    return axes_scaler * joy_msg.axes[axes_index];
   }
 }
 }  // teleop_twist_stamped_joy
