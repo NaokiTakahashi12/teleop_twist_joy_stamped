@@ -26,6 +26,8 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 
+#include <teleop_twist_stamped_joy/converter.hpp>
+
 #include <teleop_twist_stamped_node_parameters.hpp>
 
 
@@ -53,11 +55,6 @@ private:
 
   bool guardJoyToTwist(const sensor_msgs::msg::Joy &) const;
 
-  double convertJoyAxesToScalar(
-    const sensor_msgs::msg::Joy &,
-    const int axes_index,
-    const double axes_scaler
-  );
 };
 
 TeleopTwistStampedNode::TeleopTwistStampedNode(const rclcpp::NodeOptions &node_options)
@@ -199,28 +196,6 @@ bool TeleopTwistStampedNode::guardJoyToTwist(const sensor_msgs::msg::Joy &joy_ms
     return false;
   }
   return true;
-}
-
-double TeleopTwistStampedNode::convertJoyAxesToScalar(
-  const sensor_msgs::msg::Joy &joy_msg,
-  const int axes_index,
-  const double axes_scaler
-)
-{
-  constexpr double failed_return = 0;
-
-  if(static_cast<unsigned int>(axes_index) > joy_msg.axes.size())
-  {
-    return failed_return;
-  }
-  if(axes_index < 0)
-  {
-    return failed_return;
-  }
-  else
-  {
-    return axes_scaler * joy_msg.axes[axes_index];
-  }
 }
 }  // teleop_twist_stamped_joy
 
