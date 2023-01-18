@@ -16,7 +16,12 @@ generate_parameter_library(teleop_twist_stamped_node_parameters
 )
 
 ament_auto_add_library(teleop_twist_stamped_joy SHARED
+  src/converter.cpp
   src/teleop_twist_stamped_node.cpp
+)
+target_include_directories(teleop_twist_stamped_joy
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 target_link_libraries(teleop_twist_stamped_joy
   teleop_twist_stamped_node_parameters
@@ -33,6 +38,10 @@ install(
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
+)
+install(
+  DIRECTORY include/
+  DESTINATION include/
 )
 
 if(BUILD_TESTING)

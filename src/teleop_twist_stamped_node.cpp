@@ -26,6 +26,8 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 
+#include <teleop_twist_stamped_joy/converter.hpp>
+
 #include <teleop_twist_stamped_node_parameters.hpp>
 
 
@@ -53,11 +55,6 @@ private:
 
   bool guardJoyToTwist(const sensor_msgs::msg::Joy &) const;
 
-  double convertJoyAxesToScalar(
-    const sensor_msgs::msg::Joy &,
-    const int axes_index,
-    const double axes_scaler
-  );
 };
 
 TeleopTwistStampedNode::TeleopTwistStampedNode(const rclcpp::NodeOptions &node_options)
@@ -94,19 +91,18 @@ void TeleopTwistStampedNode::joyCallback(const sensor_msgs::msg::Joy &joy_msg)
 {
   if(guardJoyToTwist(joy_msg))
   {
-    if(joy_msg.buttons[m_params.enable_button] == 0)
-    {
-      geometry_msgs::msg::TwistStamped pub_msg;
-      pub_msg.header.stamp = this->get_clock()->now();
-      pub_msg.header.frame_id = m_params.twist_frame_id;
-      m_twist_stamped_publisher->publish(pub_msg);
-      return;
-    }
+    const bool pushed_enable_button = joy_msg.buttons[m_params.enable_button] == 1;
+
     geometry_msgs::msg::TwistStamped pub_msg;
 
     pub_msg.header.stamp = this->get_clock()->now();
     pub_msg.header.frame_id = m_params.twist_frame_id;
 
+    if(!pushed_enable_button && !m_params.ignore_enable_button)
+    {
+      m_twist_stamped_publisher->publish(pub_msg);
+      return;
+    }
     convertJoyToTwist(pub_msg.twist, joy_msg);
     m_twist_stamped_publisher->publish(pub_msg);
   }
@@ -195,32 +191,10 @@ bool TeleopTwistStampedNode::guardJoyToTwist(const sensor_msgs::msg::Joy &joy_ms
   }
   if(not m_twist_stamped_publisher)
   {
-    RCLCPP_INFO(this->get_logger(), "Disable enable_button");
+    RCLCPP_INFO(this->get_logger(), "Not initialize TwistStamped publisher");
     return false;
   }
   return true;
-}
-
-double TeleopTwistStampedNode::convertJoyAxesToScalar(
-  const sensor_msgs::msg::Joy &joy_msg,
-  const int axes_index,
-  const double axes_scaler
-)
-{
-  constexpr double failed_return = 0;
-
-  if(static_cast<unsigned int>(axes_index) > joy_msg.axes.size())
-  {
-    return failed_return;
-  }
-  if(axes_index < 0)
-  {
-    return failed_return;
-  }
-  else
-  {
-    return axes_scaler * joy_msg.axes[axes_index];
-  }
 }
 }  // teleop_twist_stamped_joy
 
