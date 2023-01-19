@@ -33,9 +33,9 @@ teleop_twist_stamped_joy:
     type: int
     default_value: 8
     description: "Enable turbo mode button"
-  ignore_enable_button:
+  require_enable_button:
     type: bool
-    default_value: false
+    default_value: true
     description: "Ignore enable button"
   axis_linear:
     x:

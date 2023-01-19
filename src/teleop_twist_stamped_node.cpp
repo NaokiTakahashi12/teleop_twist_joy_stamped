@@ -98,7 +98,7 @@ void TeleopTwistStampedNode::joyCallback(const sensor_msgs::msg::Joy &joy_msg)
     pub_msg.header.stamp = this->get_clock()->now();
     pub_msg.header.frame_id = m_params.twist_frame_id;
 
-    if(!pushed_enable_button && !m_params.ignore_enable_button)
+    if(!pushed_enable_button && !m_params.require_enable_button)
     {
       m_twist_stamped_publisher->publish(pub_msg);
       return;
