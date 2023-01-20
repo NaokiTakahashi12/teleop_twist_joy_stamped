@@ -46,7 +46,19 @@ def generate_declare_launch_arguments():
                 ),
                 launch.substitutions.LaunchConfiguration('joy_config'),
                 launch.substitutions.TextSubstitution(text='.config.yaml')
-        ])
+        ]),
+        launch.actions.DeclareLaunchArgument(
+            'joy_deadzone',
+            default_value='0.3'
+        ),
+        launch.actions.DeclareLaunchArgument(
+            'joy_autorepeat_rate',
+            default_value='1.0'
+        ),
+        launch.actions.DeclareLaunchArgument(
+            'joy_coalesce_interval_ms',
+            default_value='50'
+        )
     ]
 
 # TODO Remove hard coded parameter
@@ -59,8 +71,9 @@ def generate_launch_nodes():
             name='joy_node',
             parameters=[{
                 'dev': launch.substitutions.LaunchConfiguration('joy_dev'),
-                'deadzone': 0.3,
-                'autorepeat_rate': 20.0
+                'deadzone': launch.substitutions.LaunchConfiguration('joy_deadzone'),
+                'autorepeat_rate': launch.substitutions.LaunchConfiguration('joy_autorepeat_rate'),
+                'coalesce_interval_ms': launch.substitutions.LaunchConfiguration('joy_coalesce_interval_ms')
             }]
         ),
         launch_ros.actions.Node(
