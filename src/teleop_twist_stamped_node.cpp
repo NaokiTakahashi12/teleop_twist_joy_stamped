@@ -46,7 +46,7 @@ private:
   std::shared_ptr<ParamListener> m_param_listener;
   Params m_params;
 
-  void joyCallback(const sensor_msgs::msg::Joy &);
+  void joyCallback(const sensor_msgs::msg::Joy::SharedPtr);
 
   void convertJoyToTwist(
     geometry_msgs::msg::Twist &,
@@ -69,7 +69,7 @@ TeleopTwistStampedNode::TeleopTwistStampedNode(const rclcpp::NodeOptions &node_o
 
   m_joy_subscription = this->create_subscription<sensor_msgs::msg::Joy>(
     "~/joy",
-    10,
+    rclcpp::SensorDataQoS(),
     std::bind(
       &TeleopTwistStampedNode::joyCallback,
       this,
@@ -78,7 +78,7 @@ TeleopTwistStampedNode::TeleopTwistStampedNode(const rclcpp::NodeOptions &node_o
   );
   m_twist_stamped_publisher = this->create_publisher<geometry_msgs::msg::TwistStamped>(
     "~/cmd_vel_stamped",
-    10
+    rclcpp::ServicesQoS()
   );
 }
 
@@ -87,24 +87,24 @@ TeleopTwistStampedNode::~TeleopTwistStampedNode()
   RCLCPP_INFO_STREAM(this->get_logger(), "Start teleop_joy_stamped_node");
 }
 
-void TeleopTwistStampedNode::joyCallback(const sensor_msgs::msg::Joy &joy_msg)
+void TeleopTwistStampedNode::joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy_msg)
 {
-  if(guardJoyToTwist(joy_msg))
+  if(guardJoyToTwist(*joy_msg))
   {
-    const bool pushed_enable_button = joy_msg.buttons[m_params.enable_button] == 1;
+    const bool pushed_enable_button = joy_msg->buttons[m_params.enable_button] == 1;
 
-    geometry_msgs::msg::TwistStamped pub_msg;
+    auto pub_msg = std::make_unique<geometry_msgs::msg::TwistStamped>();
 
-    pub_msg.header.stamp = this->get_clock()->now();
-    pub_msg.header.frame_id = m_params.twist_frame_id;
+    pub_msg->header.stamp = this->get_clock()->now();
+    pub_msg->header.frame_id = m_params.twist_frame_id;
 
-    if(!pushed_enable_button && !m_params.require_enable_button)
+    if(!pushed_enable_button && m_params.require_enable_button)
     {
-      m_twist_stamped_publisher->publish(pub_msg);
+      m_twist_stamped_publisher->publish(std::move(pub_msg));
       return;
     }
-    convertJoyToTwist(pub_msg.twist, joy_msg);
-    m_twist_stamped_publisher->publish(pub_msg);
+    convertJoyToTwist(pub_msg->twist, *joy_msg);
+    m_twist_stamped_publisher->publish(std::move(pub_msg));
   }
 }
 
