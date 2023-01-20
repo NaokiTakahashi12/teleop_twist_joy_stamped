@@ -44,7 +44,7 @@ teleop_twist_stamped_joy:
       description: "Axis x linear button"
     y:
       type: int
-      default_value: 0
+      default_value: -1
       description: "Axis y linear button"
     z:
       type: int
