@@ -1,5 +1,7 @@
 # teleop_twist_stamped_joy
 
+This is a ros2 node package that converts and publishes sensor_msgs/msg/Joy to geometry_msgs/msg/TwistStamped.
+
 # Node
 
 ## teleop_twist_stamped_joy_node
@@ -38,3 +40,32 @@ The parameters of this node are mostly compatible with teleop_twist_joy.
 + `scale_angular_turbo.roll` (double, default_value: 0.8)
 + `scale_angular_turbo.pitch` (double, default_value: 0.8)
 + `scale_angular_turbo.yaw` (double, default_value: 0.8)
+
+# Installation
+
+## Requirements
+
+ros2 humble or higher
+
+## Dependent packages
+
++ sensor_msgs
++ geometry_msgs
++ generate_parameter_library
++ joy
++ teleop_twist_joy
+
+## Build
+
+```shell
+$ cd <your colcon workspace>/src
+$ git clone https://github.com/NaokiTakahashi12/teleop_twist_stamped_joy.git
+$ cd ..
+$ colcon build
+```
+
+## Usage
+
+```shell
+$ ros2 run teleop_twist_stamped_joy teleop_twist_stamped_joy_node
+```
