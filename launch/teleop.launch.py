@@ -49,15 +49,15 @@ def generate_declare_launch_arguments():
         ]),
         launch.actions.DeclareLaunchArgument(
             'joy_deadzone',
-            default_value='0.3'
+            default_value='0.025'
         ),
         launch.actions.DeclareLaunchArgument(
             'joy_autorepeat_rate',
-            default_value='1.0'
+            default_value='10.0'
         ),
         launch.actions.DeclareLaunchArgument(
             'joy_coalesce_interval_ms',
-            default_value='50'
+            default_value='15'
         )
     ]
 
