@@ -2,6 +2,7 @@
 
 This is a ros2 node package that converts and publishes sensor_msgs/msg/Joy to geometry_msgs/msg/TwistStamped.
 
+
 # Node
 
 ## teleop_twist_stamped_joy_node
@@ -40,6 +41,21 @@ The parameters of this node are mostly compatible with teleop_twist_joy.
 + `scale_angular_turbo.roll` (double, default_value: 0.8)
 + `scale_angular_turbo.pitch` (double, default_value: 0.8)
 + `scale_angular_turbo.yaw` (double, default_value: 0.8)
+
+
+# Launch
+
+## teleop.launch.py
+
+### Argument parameters
+
++ `joy_vel_topic` (string, default_value: cmd_vel_stamped)
++ `joy_topic` (string, default_value: joy)
++ `teleop_joy_config` (string, default_value: ps3)
++ `joy_dev` (string default_value: /dev/input/js0)
++ `teleop_config_filepath` (string, default_value: \<teleop_twist_joy\>/config/\<joy_dev\>.config.yaml)
++ `joy_config_filepath` (string, default_value: \<this_pkg\>/config/joy_config.yaml)
+
 
 # Installation
 

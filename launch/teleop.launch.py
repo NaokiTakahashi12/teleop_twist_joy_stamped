@@ -15,19 +15,20 @@ def generate_launch_description():
     )
 
 def generate_declare_launch_arguments():
-    teleop_twist_joy_pkg_path = get_package_share_directory('teleop_twist_joy')
+    this_pkg_share_path = get_package_share_directory('teleop_twist_stamped_joy')
+    teleop_twist_joy_pkg_share_path = get_package_share_directory('teleop_twist_joy')
 
     return [
         launch.actions.DeclareLaunchArgument(
-            'joy_vel',
+            'joy_vel_topic',
             default_value='cmd_vel_stamped'
         ),
         launch.actions.DeclareLaunchArgument(
-            'joy',
+            'joy_topic',
             default_value='joy'
         ),
         launch.actions.DeclareLaunchArgument(
-            'joy_config',
+            'teleop_joy_config',
             default_value='ps3'
         ),
         launch.actions.DeclareLaunchArgument(
@@ -35,29 +36,29 @@ def generate_declare_launch_arguments():
             default_value='/dev/input/js0'
         ),
         launch.actions.DeclareLaunchArgument(
-            'config_filepath',
+            'teleop_config_filepath',
             default_value=[
                 launch.substitutions.TextSubstitution(
                     text=os.path.join(
-                        teleop_twist_joy_pkg_path,
+                        teleop_twist_joy_pkg_share_path,
                         'config',
                         ''
                     )
                 ),
-                launch.substitutions.LaunchConfiguration('joy_config'),
+                launch.substitutions.LaunchConfiguration('teleop_joy_config'),
                 launch.substitutions.TextSubstitution(text='.config.yaml')
         ]),
         launch.actions.DeclareLaunchArgument(
-            'joy_deadzone',
-            default_value='0.3'
-        ),
-        launch.actions.DeclareLaunchArgument(
-            'joy_autorepeat_rate',
-            default_value='1.0'
-        ),
-        launch.actions.DeclareLaunchArgument(
-            'joy_coalesce_interval_ms',
-            default_value='50'
+            'joy_config_filepath',
+            default_value=[
+                launch.substitutions.TextSubstitution(
+                    text=os.path.join(
+                        this_pkg_share_path,
+                        'config',
+                        'joy_config.yaml'
+                    )
+                )
+            ]
         )
     ]
 
@@ -69,23 +70,24 @@ def generate_launch_nodes():
             package='joy',
             executable='joy_node',
             name='joy_node',
-            parameters=[{
-                'dev': launch.substitutions.LaunchConfiguration('joy_dev'),
-                'deadzone': launch.substitutions.LaunchConfiguration('joy_deadzone'),
-                'autorepeat_rate': launch.substitutions.LaunchConfiguration('joy_autorepeat_rate'),
-                'coalesce_interval_ms': launch.substitutions.LaunchConfiguration('joy_coalesce_interval_ms')
-            }]
+            parameters=[
+                launch.substitutions.LaunchConfiguration('joy_config_filepath'),
+                {'dev': launch.substitutions.LaunchConfiguration('joy_dev')}
+            ],
+            remappings={
+                ('joy', launch.substitutions.LaunchConfiguration('joy_topic'))
+            }
         ),
         launch_ros.actions.Node(
             package='teleop_twist_stamped_joy',
             executable='teleop_twist_stamped_joy_node',
             name='teleop_twist_joy_node',
             parameters=[
-                launch.substitutions.LaunchConfiguration('config_filepath')
+                launch.substitutions.LaunchConfiguration('teleop_config_filepath')
             ],
             remappings={
-                ('~/cmd_vel_stamped', launch.substitutions.LaunchConfiguration('joy_vel')),
-                ('~/joy', launch.substitutions.LaunchConfiguration('joy'))
+                ('~/cmd_vel_stamped', launch.substitutions.LaunchConfiguration('joy_vel_topic')),
+                ('~/joy', launch.substitutions.LaunchConfiguration('joy_topic'))
             }
         )
     ]
