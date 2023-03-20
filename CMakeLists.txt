@@ -33,7 +33,6 @@ rclcpp_components_register_node(teleop_twist_stamped_joy
 
 install(
   TARGETS
-    teleop_twist_stamped_node_parameters
     teleop_twist_stamped_joy
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
