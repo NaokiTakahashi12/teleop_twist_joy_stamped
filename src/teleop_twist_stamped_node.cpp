@@ -1,3 +1,5 @@
+// MIT License
+//
 // Copyright (c) 2023 Naoki Takahashi
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -57,7 +59,7 @@ private:
 
 };
 
-TeleopTwistStampedNode::TeleopTwistStampedNode(const rclcpp::NodeOptions &node_options)
+TeleopTwistStampedNode::TeleopTwistStampedNode(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("teleop_twist_stamped_joy", node_options)
 {
   RCLCPP_INFO_STREAM(this->get_logger(), "Start teleop_joy_stamped_node");
@@ -89,8 +91,7 @@ TeleopTwistStampedNode::~TeleopTwistStampedNode()
 
 void TeleopTwistStampedNode::joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy_msg)
 {
-  if(guardJoyToTwist(*joy_msg))
-  {
+  if (guardJoyToTwist(*joy_msg)) {
     const bool pushed_enable_button = joy_msg->buttons[m_params.enable_button] == 1;
 
     auto pub_msg = std::make_unique<geometry_msgs::msg::TwistStamped>();
@@ -98,8 +99,7 @@ void TeleopTwistStampedNode::joyCallback(const sensor_msgs::msg::Joy::SharedPtr 
     pub_msg->header.stamp = this->get_clock()->now();
     pub_msg->header.frame_id = m_params.twist_frame_id;
 
-    if(!pushed_enable_button && m_params.require_enable_button)
-    {
+    if (!pushed_enable_button && m_params.require_enable_button) {
       m_twist_stamped_publisher->publish(std::move(pub_msg));
       return;
     }
@@ -109,13 +109,12 @@ void TeleopTwistStampedNode::joyCallback(const sensor_msgs::msg::Joy::SharedPtr 
 }
 
 void TeleopTwistStampedNode::convertJoyToTwist(
-  geometry_msgs::msg::Twist &twist_msg,
-  const sensor_msgs::msg::Joy &joy_msg
+  geometry_msgs::msg::Twist & twist_msg,
+  const sensor_msgs::msg::Joy & joy_msg
 )
 {
   const bool enable_turbo_mode = joy_msg.buttons[m_params.enable_turbo_button] == 1;
-  if(enable_turbo_mode)
-  {
+  if (enable_turbo_mode) {
     twist_msg.linear.x = convertJoyAxesToScalar(
       joy_msg,
       m_params.axis_linear.x,
@@ -146,9 +145,7 @@ void TeleopTwistStampedNode::convertJoyToTwist(
       m_params.axis_angular.yaw,
       m_params.scale_angular_turbo.yaw
     );
-  }
-  else
-  {
+  } else {
     twist_msg.linear.x = convertJoyAxesToScalar(
       joy_msg,
       m_params.axis_linear.x,
@@ -182,15 +179,13 @@ void TeleopTwistStampedNode::convertJoyToTwist(
   }
 }
 
-bool TeleopTwistStampedNode::guardJoyToTwist(const sensor_msgs::msg::Joy &joy_msg) const
+bool TeleopTwistStampedNode::guardJoyToTwist(const sensor_msgs::msg::Joy & joy_msg) const
 {
-  if(static_cast<unsigned int>(m_params.enable_button) > joy_msg.buttons.size())
-  {
+  if (static_cast<unsigned int>(m_params.enable_button) > joy_msg.buttons.size()) {
     RCLCPP_WARN(this->get_logger(), "Not found enable_button button index");
     return false;
   }
-  if(not m_twist_stamped_publisher)
-  {
+  if (not m_twist_stamped_publisher) {
     RCLCPP_INFO(this->get_logger(), "Not initialize TwistStamped publisher");
     return false;
   }
