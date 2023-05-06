@@ -14,6 +14,7 @@ def generate_launch_description():
         + generate_launch_nodes()
     )
 
+
 def generate_declare_launch_arguments():
     this_pkg_share_path = get_package_share_directory('teleop_twist_stamped_joy')
     teleop_twist_joy_pkg_share_path = get_package_share_directory('teleop_twist_joy')
@@ -47,7 +48,8 @@ def generate_declare_launch_arguments():
                 ),
                 launch.substitutions.LaunchConfiguration('teleop_joy_config'),
                 launch.substitutions.TextSubstitution(text='.config.yaml')
-        ]),
+            ]
+        ),
         launch.actions.DeclareLaunchArgument(
             'joy_config_filepath',
             default_value=[
@@ -62,8 +64,8 @@ def generate_declare_launch_arguments():
         )
     ]
 
-# TODO Remove hard coded parameter
 
+# TODO Remove hard coded parameter
 def generate_launch_nodes():
     return [
         launch_ros.actions.Node(
